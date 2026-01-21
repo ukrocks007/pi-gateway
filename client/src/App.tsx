@@ -38,7 +38,7 @@ function App() {
     setLoading(true)
     setError('')
     try {
-      await axios.post('/api/login', {}, { headers: getAuthHeader() })
+      await axios.post('/management/api/login', {}, { headers: getAuthHeader() })
       setIsLoggedIn(true)
       fetchRoutes()
     } catch (err) {
@@ -50,7 +50,7 @@ function App() {
 
   const fetchRoutes = async () => {
     try {
-      const res = await axios.get('/api/routes', { headers: getAuthHeader() })
+      const res = await axios.get('/management/api/routes', { headers: getAuthHeader() })
       setRoutes(res.data)
     } catch (err) {
       console.error('Failed to fetch routes')
@@ -62,7 +62,7 @@ function App() {
     if (!newRoutePath || !newRouteTarget || !newRouteName) return
 
     try {
-      await axios.post('/api/routes', {
+      await axios.post('/management/api/routes', {
         path: newRoutePath,
         target: newRouteTarget,
         name: newRouteName
@@ -80,7 +80,7 @@ function App() {
   const deleteRoute = async (path: string) => {
     if (!confirm(`Are you sure you want to delete route ${path}?`)) return
     try {
-      await axios.delete('/api/routes', { 
+      await axios.delete('/management/api/routes', { 
         headers: getAuthHeader(),
         data: { path } 
       })
@@ -92,7 +92,7 @@ function App() {
 
   const toggleRoute = async (path: string, currentStatus: boolean) => {
     try {
-      await axios.patch('/api/routes', {
+      await axios.patch('/management/api/routes', {
         path,
         enabled: !currentStatus
       }, { headers: getAuthHeader() })

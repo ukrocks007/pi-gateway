@@ -141,7 +141,7 @@ apiRouter.patch('/routes', (req, res) => {
 });
 
 // Mount API Router
-app.use('/api', apiRouter);
+app.use('/management/api', apiRouter);
 
 // Static frontend hosting
 // Serve static files from the client build directory
@@ -183,7 +183,7 @@ const proxy = createProxyMiddleware({
 // Proxy handler
 app.use((req, res, next) => {
   // Skip API and Management routes
-  if (req.path.startsWith('/api/') || req.path.startsWith('/management')) {
+  if (req.path.startsWith('/management')) {
     return next();
   }
 
@@ -197,14 +197,14 @@ app.use((req, res, next) => {
   res.status(404).json({ 
     error: 'Not Found',
     message: 'No route configured for this path',
-    availableRoutes: '/api/routes'
+    availableRoutes: '/management/api/routes'
   });
 });
 
 app.listen(PORT, () => {
   console.log(`Pi Gateway running on port ${PORT}`);
   console.log(`Management UI: http://localhost:${PORT}/management`);
-  console.log(`Routes API: http://localhost:${PORT}/api/routes`);
+  console.log(`Routes API: http://localhost:${PORT}/management/api/routes`);
 });
 
 module.exports = app;
