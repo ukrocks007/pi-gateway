@@ -73,6 +73,15 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// Public routes list endpoint (no authentication)
+app.get('/api/routes', (req, res) => {
+  const enabledRoutes = routes.filter(r => r.enabled).map(r => ({
+    path: r.path,
+    name: r.name
+  }));
+  res.json(enabledRoutes);
+});
+
 // API Router (Authenticated & JSON Parsed)
 const apiRouter = express.Router();
 apiRouter.use(express.json());
@@ -200,6 +209,11 @@ const proxy = createProxyMiddleware({
     console.error('Proxy error:', err.message);
     res.status(502).json({ error: 'Bad Gateway', message: err.message });
   }
+});
+
+// Serve index page at root
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // Proxy handler
