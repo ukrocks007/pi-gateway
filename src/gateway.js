@@ -158,18 +158,40 @@ app.use('/management', (req, res) => {
 });
 
 
+// Helper to find route by path or referer
+function findRoute(req) {
+  // 1. Try to find by path
+  let route = routes.find(r => r.enabled && req.path.startsWith(r.path));
+  if (route) return route;
+
+  // 2. Try to find by referer
+  if (req.headers.referer) {
+    try {
+      const refererUrl = new URL(req.headers.referer);
+      const refererPath = refererUrl.pathname;
+      route = routes.find(r => r.enabled && refererPath.startsWith(r.path));
+      if (route) return route;
+    } catch (e) {
+      // Ignore invalid referer
+    }
+  }
+  return undefined;
+}
+
+
 // Dynamic Proxy Logic
 const proxy = createProxyMiddleware({
   target: 'http://localhost', // Default, will be overridden by router
   changeOrigin: true,
   router: (req) => {
-    // Find the matching route
-    const route = routes.find(r => r.enabled && req.path.startsWith(r.path));
+    // Use the route found in the handler if available, otherwise find it again
+    const route = req.resolvedRoute || findRoute(req);
     return route ? route.target : undefined;
   },
   pathRewrite: (path, req) => {
-    const route = routes.find(r => r.enabled && path.startsWith(r.path));
-    if (route) {
+    const route = req.resolvedRoute || findRoute(req);
+    // Only rewrite if the path actually starts with the route path (Path match)
+    if (route && path.startsWith(route.path)) {
       return path.replace(new RegExp(`^${route.path}`), '');
     }
     return path;
@@ -187,9 +209,10 @@ app.use((req, res, next) => {
     return next();
   }
 
-  // Check if request matches a configured route
-  const route = routes.find(r => r.enabled && req.path.startsWith(r.path));
+  // Check if request matches a configured route (via path or referer)
+  const route = findRoute(req);
   if (route) {
+    req.resolvedRoute = route;
     return proxy(req, res, next);
   }
 
