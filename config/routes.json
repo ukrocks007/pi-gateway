@@ -1,0 +1,10 @@
+{
+  "routes": [
+    {
+      "path": "/example",
+      "target": "http://localhost:3001",
+      "name": "Example App",
+      "enabled": true
+    }
+  ]
+}
