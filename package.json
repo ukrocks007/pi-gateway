@@ -4,11 +4,17 @@
   "description": "API Gateway for Raspberry Pi - route multiple web apps through a single port",
   "main": "src/gateway.js",
   "scripts": {
+    "dev": "node src/gateway.js",
     "start": "node src/gateway.js",
     "manage": "node src/manage.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["raspberry-pi", "gateway", "reverse-proxy", "api-gateway"],
+  "keywords": [
+    "raspberry-pi",
+    "gateway",
+    "reverse-proxy",
+    "api-gateway"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
