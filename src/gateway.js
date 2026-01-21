@@ -90,7 +90,7 @@ apiRouter.get('/routes', (req, res) => {
 
 apiRouter.post('/routes', (req, res) => {
   const { path: routePath, target, name } = req.body;
-  
+
   if (!routePath || !target || !name) {
     return res.status(400).json({ error: 'Missing required fields: path, target, name' });
   }
@@ -114,7 +114,7 @@ apiRouter.post('/routes', (req, res) => {
 apiRouter.delete('/routes', (req, res) => {
   const { path: routePath } = req.body; // Using body for delete to avoid encoding issues in URL
   const index = routes.findIndex(r => r.path === routePath);
-  
+
   if (index === -1) {
     return res.status(404).json({ error: 'Route not found' });
   }
@@ -217,17 +217,28 @@ app.use((req, res, next) => {
   }
 
   // Fallback for no route matched
-  res.status(404).json({ 
+  res.status(404).json({
     error: 'Not Found',
     message: 'No route configured for this path',
     availableRoutes: '/management/api/routes'
   });
 });
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Pi Gateway running on port ${PORT}`);
   console.log(`Management UI: http://localhost:${PORT}/management`);
   console.log(`Routes API: http://localhost:${PORT}/management/api/routes`);
+});
+
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`Error: Port ${PORT} is already in use.`);
+    console.error('Please stop the process using this port or rename the PORT environment variable.');
+    process.exit(1);
+  } else {
+    console.error('Error starting server:', err);
+    process.exit(1);
+  }
 });
 
 module.exports = app;
