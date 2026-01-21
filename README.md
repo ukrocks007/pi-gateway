@@ -71,6 +71,37 @@ Routes are stored in `config/routes.json`:
 | `GET /health` | Health check status |
 | `GET /api/routes` | List all configured routes |
 
+## Testing
+
+The project includes comprehensive test coverage for all core functionality.
+
+### Run tests
+```bash
+npm test
+```
+
+### Run tests in watch mode
+```bash
+npm run test:watch
+```
+
+### Generate coverage report
+```bash
+npm run test:coverage
+```
+
+### CI/CD
+
+This project uses GitHub Actions for continuous integration. The CI pipeline:
+- ✅ Runs tests on Node.js 18.x and 20.x
+- ✅ Generates code coverage reports
+- ✅ Checks for linting issues (if configured)
+- ✅ Validates builds (if configured)
+
+The workflow runs automatically on:
+- Push to `main` or `develop` branches
+- Pull requests to `main` or `develop` branches
+
 ## Example Setup
 
 1. Start your web apps on different ports:
