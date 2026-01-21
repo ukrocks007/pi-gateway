@@ -3,3 +3,6 @@ node_modules/
 *.log
 coverage/
 config/test-routes.json
+client/node_modules
+client/dist
+
