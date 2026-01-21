@@ -50,9 +50,6 @@ function saveRoutes() {
 // Initial load
 loadRoutes();
 
-// Middleware
-app.use(express.json());
-
 // Auth Middleware
 const authenticate = (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -76,17 +73,22 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// API Router (Authenticated & JSON Parsed)
+const apiRouter = express.Router();
+apiRouter.use(express.json());
+apiRouter.use(authenticate);
+
 // Login check (for UI to verify creds)
-app.post('/api/login', authenticate, (req, res) => {
+apiRouter.post('/login', (req, res) => {
   res.json({ status: 'ok', user: adminUser });
 });
 
 // Routes Management API
-app.get('/api/routes', authenticate, (req, res) => {
+apiRouter.get('/routes', (req, res) => {
   res.json(routes);
 });
 
-app.post('/api/routes', authenticate, (req, res) => {
+apiRouter.post('/routes', (req, res) => {
   const { path: routePath, target, name } = req.body;
   
   if (!routePath || !target || !name) {
@@ -109,7 +111,7 @@ app.post('/api/routes', authenticate, (req, res) => {
   res.status(201).json(newRoute);
 });
 
-app.delete('/api/routes', authenticate, (req, res) => {
+apiRouter.delete('/routes', (req, res) => {
   const { path: routePath } = req.body; // Using body for delete to avoid encoding issues in URL
   const index = routes.findIndex(r => r.path === routePath);
   
@@ -122,7 +124,7 @@ app.delete('/api/routes', authenticate, (req, res) => {
   res.json(removed);
 });
 
-app.patch('/api/routes', authenticate, (req, res) => {
+apiRouter.patch('/routes', (req, res) => {
   const { path: routePath, enabled } = req.body;
   const route = routes.find(r => r.path === routePath);
 
@@ -137,6 +139,9 @@ app.patch('/api/routes', authenticate, (req, res) => {
   saveRoutes();
   res.json(route);
 });
+
+// Mount API Router
+app.use('/api', apiRouter);
 
 // Static frontend hosting
 // Serve static files from the client build directory
@@ -203,4 +208,3 @@ app.listen(PORT, () => {
 });
 
 module.exports = app;
-
