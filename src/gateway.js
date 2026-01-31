@@ -188,10 +188,11 @@ function findRoute(req) {
 }
 
 
-// Dynamic Proxy Logic
+// Dynamic Proxy Logic (HTTP + WebSocket)
 const proxy = createProxyMiddleware({
   target: 'http://localhost', // Default, will be overridden by router
   changeOrigin: true,
+  ws: true, // Enable WebSocket proxying
   router: (req) => {
     // Use the route found in the handler if available, otherwise find it again
     const route = req.resolvedRoute || findRoute(req);
@@ -242,6 +243,23 @@ const server = app.listen(PORT, () => {
   console.log(`Pi Gateway running on port ${PORT}`);
   console.log(`Management UI: http://localhost:${PORT}/management`);
   console.log(`Routes API: http://localhost:${PORT}/management/api/routes`);
+});
+
+// Handle WebSocket upgrades and route them via the proxy
+server.on('upgrade', (req, socket, head) => {
+  try {
+    req.resolvedRoute = findRoute(req);
+    if (!req.resolvedRoute) {
+      console.warn('WS upgrade: no matching route for', req.url);
+      socket.destroy();
+      return;
+    }
+    console.log('WS upgrade target:', req.resolvedRoute.target, 'for', req.url);
+    proxy.upgrade(req, socket, head);
+  } catch (err) {
+    console.error('WebSocket upgrade error:', err.message);
+    socket.destroy();
+  }
 });
 
 server.on('error', (err) => {
