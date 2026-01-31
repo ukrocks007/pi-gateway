@@ -5,4 +5,5 @@ coverage/
 config/test-routes.json
 client/node_modules
 client/dist
+/config/routes.json
 
